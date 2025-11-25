@@ -1,8 +1,6 @@
 import express, { NextFunction, Request, Response, Router } from 'express'
-import bcrypt from 'bcrypt'
-import z from 'zod';
-import jwt from 'jsonwebtoken'
-import mongoose from 'mongoose'
+
+import {SignupSchema,loginSchema} from '@repo/common/types'
 
 const userRouter:Router=express.Router()
 
@@ -21,20 +19,18 @@ userRouter.post('/signup',function async(req:Request,res:Response){
     const firstname=req.body.firstname;
     const lastname=req.body.lastname;
 
-    const SignupSchema=z.object({
-        username:z.string().max(50),
-        password:z.string().min(8),
-        firstname:z.string().min(3).max(50),
-        lastname:z.string().max(50),
+    // const SignupSchema=z.object({
+    //     username:z.string().max(50),
+    //     password:z.string().min(8),
+    //     firstname:z.string().min(3).max(50),
+    //     lastname:z.string().max(50),
 
-    })
-    const parsedbody=z.safeParse(SignupSchema,req.body)
+    // })
+    const parsedbody=SignupSchema.safeParse(req.body)
     if(!parsedbody.success){
-        return res.status(403).json({message:'input validation error'})
+        res.status(403).json({ message: "input validation error" });
+        return 
     }
-    
-
-// zod validation
 // bcrypt hashing
 //  db.create
 
@@ -42,6 +38,11 @@ userRouter.post('/signup',function async(req:Request,res:Response){
 
 })
 userRouter.post('/login',function async(req:Request,res:Response){
+    const loginParsed=loginSchema.safeParse(req.body)
+    if(!loginParsed.success){
+        res.status(403).json({ message: "input validation error" });
+        return
+    }
     //jwt .sign
     //res jwt
 })
