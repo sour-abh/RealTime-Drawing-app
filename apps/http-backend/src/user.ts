@@ -1,7 +1,6 @@
 import express, { NextFunction, Request, Response, Router } from 'express'
 
 import {SignupSchema,loginSchema} from '@repo/common/types'
-import {generateRandomString} from '@repo/common/utils'
 import {JWT_SECRET} from "@repo/backend-common/config"
 import {prisma} from '@repo/db/client'
 import bcrypt from 'bcrypt'
@@ -10,17 +9,30 @@ import jwt, { JwtPayload } from 'jsonwebtoken'
 const userRouter:Router=express.Router()
 
 
+function generateRandomString(length: number) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+
 const authmiddleware=async(req:Request ,res:Response,next:NextFunction)=>{
     const header=req.headers.authorization ?? ''
     if ( !header){
-        res.status(400).json({message:'no header found'})
+       return  res.status(400).json({message:'no header found'})
     }
     const token=header?.split(' ')[1]
     if(!token){
-        res.status(400).json({message:'token not found'})
-        return
+        return res.status(400).json({message:'token not found'}) 
     }
-    try{    const decoded = jwt.verify(token, JWT_SECRET);
+    try{    
+      const decoded = jwt.verify(token, JWT_SECRET);
+
     if (typeof decoded == "string") {
       res.status(400).json({ message: "json error" });
       return;
@@ -33,8 +45,9 @@ const authmiddleware=async(req:Request ,res:Response,next:NextFunction)=>{
       return;
     }
     req.userId = decoded.userId;
-    res.status(200).json({ message: "user authenticated successfull" });
-    next();}
+    console.log( "user authenticated successfull" );
+    next();
+  }
     catch(err){
         res.json({message:err})
 
@@ -43,23 +56,25 @@ const authmiddleware=async(req:Request ,res:Response,next:NextFunction)=>{
 }
 
 userRouter.post('/signup', async function (req:Request,res:Response){
-    const username=req.body.username;
+    const email=req.body.email;
     const password=req.body.password;
-    const firstname=req.body.firstname;
-    const lastname=req.body.lastname;
-    const parsedbody=SignupSchema.safeParse({username,password,firstname,lastname})
+    const name=req.body.name;
+    
+    const parsedbody=SignupSchema.safeParse({email,password,name})
+
     if(!parsedbody.success){
-        res.status(403).json({ message: "input validation error" });
+        res.status(403).json({ message: "input validation error" ,parsedbody});
         return 
     }
     const hash= await bcrypt.hash(password,10)
     try{
-    const user = await prisma.user.findFirst({ where: { username: username } });
-    if (user !== null || user !== undefined) {
+    const user = await prisma.user.findFirst({ where: { email: email } });
+    
+    if (user) {
       res.status(400).json({ message: "user already exist" });
       return;
     }
-    const createdUser = await  prisma.user.create({ data:{username:username,password:hash, firstname:firstname,lastname:lastname},omit:{
+    const createdUser = await  prisma.user.create({ data:{email,password:hash, name,},omit:{
         password:true
     }})
     if(createdUser){
@@ -74,17 +89,21 @@ userRouter.post('/signup', async function (req:Request,res:Response){
     }
 })
 userRouter.post('/login', async function (req:Request,res:Response){
-    const username=req.body.username;
+    const email=req.body.email;
     const passwordlogin=req.body.password;
-    const loginParsed=loginSchema.safeParse({username,password:passwordlogin})
+    const loginParsed=loginSchema.safeParse({email,password:passwordlogin})
     if(!loginParsed.success){
         res.status(401).json({ message: "input validation error" });
         return
     }
     try {
         const user= await prisma.user.findUnique({where:{
-            username:username
+            email:email
         }})
+        if(!user){
+            res.status(400).json({message:'no username found with this '})
+            return
+        }
         const result=bcrypt.compare(passwordlogin,user.password)
         if(!result){
             res.status(400).json({ message:"wrong credentials"})
@@ -104,13 +123,14 @@ userRouter.post('/login', async function (req:Request,res:Response){
 userRouter.post('/create-room',authmiddleware,async function (req:Request,res:Response){
     // if logged in
     const userId=req.userId
+
     if(!userId){
         res.status(401).json({message:"unauthenticated"})
         return
     }
 
     const createdRoom= await prisma.room.create({data:{
-        createdBy:userId,
+        adminId:userId,
         slug:generateRandomString(10)
 
     }})
@@ -120,5 +140,33 @@ userRouter.post('/create-room',authmiddleware,async function (req:Request,res:Re
     }
     // can create a room with specific id 
 })
+userRouter.get(
+  "/chats",
+  authmiddleware,
+  async function (req: Request, res: Response) {
+    const room = Number(req.query.roomId) || 1;
+    try {
+      const chats = prisma.chat.findMany({
+        where: {
+          roomId: Number(room),
+        },
+        take: 50,
+      });
+      if (!chats) {
+        res.status(400).json({ message: "chats fetching unsuccessfull" });
+        return;
+      }
+      res
+        .status(200)
+        .json({ 
+          message: "chats fetched successfully",
+          chats: chats,
+          room: room,
+        });
+    } catch (error) {
+      res.status(403).json({ message: "error while getting chats" });
+    }
+  }
+);
 
 export {userRouter}
