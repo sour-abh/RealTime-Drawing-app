@@ -141,16 +141,19 @@ userRouter.post('/create-room',authmiddleware,async function (req:Request,res:Re
     // can create a room with specific id 
 })
 userRouter.get(
-  "/chats",
+  "/chats/:roomId",
   authmiddleware,
   async function (req: Request, res: Response) {
-    const room = Number(req.query.roomId) || 1;
+    const room = Number(req.params.roomId);
+    console.log(room)
     try {
-      const chats = prisma.chat.findMany({
+      const chats = await prisma.chat.findMany({
         where: {
-          roomId: Number(room),
-        },
-        take: 50,
+          roomId: room,
+        }
+        // ,orderBy:{id:'desc'},
+        // take:50
+
       });
       if (!chats) {
         res.status(400).json({ message: "chats fetching unsuccessfull" });
@@ -168,5 +171,18 @@ userRouter.get(
     }
   }
 );
+
+userRouter.get("/room/:slug", async (req:Request, res:Response) => {
+  const slug = req.params.slug;
+  const room = await prisma.room.findFirst({
+    where: {
+      slug,
+    },
+  });
+
+  res.json({
+    room,
+  });
+});
 
 export {userRouter}
