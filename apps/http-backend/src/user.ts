@@ -6,7 +6,9 @@ import {prisma} from '@repo/db/client'
 import bcrypt from 'bcrypt'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
+
 const userRouter:Router=express.Router()
+
 
 
 function generateRandomString(length: number) {
@@ -80,8 +82,13 @@ userRouter.post('/signup', async function (req:Request,res:Response){
     if(createdUser){
         
         const token=jwt.sign({userId:createdUser.id},JWT_SECRET)
-  
-        res.status(201).json({ message: "user created successfully",token:token,user:createdUser });
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: false, // set to true in production
+          sameSite: "lax",
+          maxAge: 1000 * 60 * 60 * 24 * 7,
+        });
+        res.status(201).json({ message: "user created successfully",token:token,user:createdUser,success:true });
     }}
 
     catch(error){
@@ -110,6 +117,12 @@ userRouter.post('/login', async function (req:Request,res:Response){
         }
         const token = jwt.sign({userId:user.id}, JWT_SECRET);
         const {password,...safeUser}=user
+                res.cookie("token", token, {
+                  httpOnly: true,
+                  secure: false, // set to true in production
+                  sameSite: "lax",
+                  maxAge: 1000 * 60 * 60 * 24 * 7,
+                });
         res
           .status(200)
           .json({ message: "user logged successfully", token: token,user:safeUser  });
@@ -151,12 +164,12 @@ userRouter.get(
         where: {
           roomId: room,
         }
-        // ,orderBy:{id:'desc'},
-        // take:50
+        ,orderBy:{id:'desc'},
+        take:50
 
       });
       if (!chats) {
-        res.status(400).json({ message: "chats fetching unsuccessfull" });
+        res.status(411).json({ message: "chats fetching unsuccessfull" });
         return;
       }
       res
@@ -164,10 +177,9 @@ userRouter.get(
         .json({ 
           message: "chats fetched successfully",
           chats: chats,
-          room: room,
         });
     } catch (error) {
-      res.status(403).json({ message: "error while getting chats" });
+      res.status(403).json({ message: "error while getting chats" ,chats:[]});
     }
   }
 );
@@ -179,7 +191,7 @@ userRouter.get("/room/:slug", async (req:Request, res:Response) => {
       slug,
     },
   });
-
+  
   res.json({
     room,
   });

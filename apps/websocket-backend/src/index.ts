@@ -12,20 +12,23 @@ ws:WebSocket;
 
 const users:User[]=[]
 
-function checkuser(token:string ):string|null{
-    try{const decoded = jwt.verify(token, JWT_SECRET);
-            if (!decoded || typeof decoded == "string") {
-              return null;
-            }
-            if (!decoded.userId) {
-              return null;
-            }
-            return decoded.userId;
+function checkUser(token: string): string | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (typeof decoded == "string") {
+      return null;
     }
-    catch(error){
-         console.log(error)
-         return null
-    }        
+
+    if (!decoded || !decoded.userId) { 
+      return null;
+    }
+
+    return decoded.userId;
+  } catch (e) {
+    return null;
+  }
+  return null;
 }
 
 wss.on('connection',function connection(ws,request){
@@ -33,12 +36,13 @@ wss.on('connection',function connection(ws,request){
     if (!url){
         return;
     }
+
     const queryParams=new URLSearchParams(url.split('?')[1])
-    const token=queryParams.get('token') ?? '' ;
-    const userId=checkuser(token)
-    if(!userId){
+    const token=queryParams.get('token') || '' ;
+    const userId=checkUser(token)
+    if(userId==null){
         ws.close()
-        return
+        return null
     }
     users.push({
         userId,
@@ -66,10 +70,10 @@ wss.on('connection',function connection(ws,request){
             }catch(error){
                 console.log(error)
             }
-            console.log(users)
+            
         }
-                if (parsedData.type === "leave_room") {
-                  try {
+        if (parsedData.type === "leave_room") {
+            
                     const user = users.find((x) => x.ws === ws);
                     if (!user) {
                       return
@@ -77,9 +81,6 @@ wss.on('connection',function connection(ws,request){
                     user.rooms = user?.rooms.filter(
                       (x) => x === parsedData.room
                     );
-                  } catch (error) {
-                    console.log(error);
-                  }
                   console.log(users)
                 }
                 console.log('message received')
@@ -109,6 +110,6 @@ wss.on('connection',function connection(ws,request){
                     }
                 })
             }
-        ws.send(userId)
+        
     }) 
 })
