@@ -1,0 +1,19 @@
+(node:13232) Warning: Failed to load the ES module: C:\Users\jy007\Documents\GitHub\RealTime-Drawing-app\packages\common\src\types.ts. Make sure to set "type": "module" in the nearest package.json file or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+C:\Users\jy007\Documents\GitHub\RealTime-Drawing-app\packages\common\src\types.ts:1
+import {z} from "zod";
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at wrapSafe (node:internal/modules/cjs/loader:1692:18)
+    at Module._compile (node:internal/modules/cjs/loader:1735:20)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (C:\Users\jy007\Documents\GitHub\RealTime-Drawing-app\apps\http-backend\dist\user.js:8:17)
+
+Node.js v24.11.1
