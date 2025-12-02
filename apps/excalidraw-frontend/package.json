@@ -1,6 +1,7 @@
 {
-  "name": "my-v0-project",
+  "name": "excalifrontend",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +10,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+        "@repo/db": "workspace:*",
+    "@repo/ui": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -63,6 +66,8 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
+        "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
