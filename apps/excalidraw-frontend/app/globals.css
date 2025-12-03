@@ -2,7 +2,13 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
 
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+}
 :root {
   /* <CHANGE> Updated theme for drawing app - modern minimalist design */
   --background: oklch(0.98 0 0);

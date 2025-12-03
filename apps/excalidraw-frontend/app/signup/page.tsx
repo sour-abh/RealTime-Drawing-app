@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Pen } from "lucide-react"
 import { BACKEND_HTTP_URL } from "@/config"
 import axios from 'axios'
+import { useRouter } from "next/navigation"
 
 
 export default function SignupPage() {
@@ -16,6 +17,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
   const [loading, setLoading] = useState(false)
+  const router=useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,13 +29,16 @@ export default function SignupPage() {
     try{
         const res=await axios.post(`${BACKEND_HTTP_URL}/signup`,{email:email,password:password,name:name})
         if(!res){
-            return
+          setLoading(false)
+          return
+            
         }
-        console.log(res)
+        if(res.status==200 || res.status==201){
+            router.push('/canvas')
             setTimeout(() => {
               setLoading(false);
               alert("Signup successful!");
-            }, 1000);
+            }, 1000);}
     }catch(err){
         console.log(err)
     }

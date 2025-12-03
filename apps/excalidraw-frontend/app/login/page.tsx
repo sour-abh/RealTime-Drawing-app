@@ -9,23 +9,30 @@ import { Input } from "@/components/ui/input";
 import { Pen } from "lucide-react";
 import { BACKEND_HTTP_URL } from "@/config"
 import axios from 'axios'
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const router=useRouter()
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const res = await axios.post(`${BACKEND_HTTP_URL}/login`,{email:email,password:password},{withCredentials:true})
     if(!res){
+      setLoading(false)
+      alert('wrong credentials')
         return
     }
-    setTimeout(() => {
+    if(res.status==200 || res.status==201){
+      router.push('/canvas')
+      setTimeout(() => {
       setLoading(false);
       alert("Login successful!");
     }, 1000);
+    }
+
   };
 
   return (

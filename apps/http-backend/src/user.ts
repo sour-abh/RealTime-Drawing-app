@@ -190,13 +190,9 @@ userRouter.get(
   }
 );
 
-userRouter.get("/room/:slug", async (req:Request, res:Response) => {
+userRouter.get("/rooms", async (req:Request, res:Response) => {
   const slug = req.params.slug;
-  const room = await prisma.room.findFirst({
-    where: {
-      slug,
-    },
-  });
+  const room = await prisma.room.findMany();
   
   res.json({
     room,
