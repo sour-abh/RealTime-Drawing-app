@@ -76,7 +76,8 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string,socket:Web
         existingShapes.push(shape);
         socket.send(JSON.stringify({
             type:"chat",
-            message:JSON.stringify({shape}),roomId
+            message:JSON.stringify({shape}),
+            roomId
         }))
     })
 
@@ -97,7 +98,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string,socket:Web
                 const centerY=startY+radius
                 ctx.beginPath()
 
-                ctx.arc(centerX,centerY,radius,0,Math.PI*2);
+                ctx.arc(centerX,centerY,Math.abs(radius),0,Math.PI*2);
                 ctx.stroke()
                 ctx.closePath()
             }
@@ -109,7 +110,7 @@ export async function initDraw(canvas:HTMLCanvasElement,roomId:string,socket:Web
 
 function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasRenderingContext2D){
     ctx.clearRect(0,0,canvas.width,canvas.height)
-    ctx.fillStyle="rgba(66,60,60)";
+    ctx.fillStyle="rgba(51,50,50)";
     ctx.fillRect(0,0,canvas.width,canvas.height)
 
     existingShapes.map((shape)=>{
@@ -119,7 +120,7 @@ function clearCanvas(existingShapes:Shape[],canvas:HTMLCanvasElement,ctx:CanvasR
         }else if(shape.type==='circle'){
             ctx.beginPath()
             ctx.strokeStyle="rgba(67,145,107)"
-            ctx.arc(shape.centerX,shape.centerY,shape.radius,0,Math.PI*2);
+            ctx.arc(shape.centerX,shape.centerY,Math.abs(shape.radius),0,Math.PI*2);
             ctx.stroke()
             ctx.closePath()
         }

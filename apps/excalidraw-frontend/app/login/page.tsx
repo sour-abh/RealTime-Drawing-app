@@ -18,7 +18,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const res = await axios.post(`${BACKEND_HTTP_URL}/login`,{email:email,password:password})
+    const res = await axios.post(`${BACKEND_HTTP_URL}/login`,{email:email,password:password},{withCredentials:true})
     if(!res){
         return
     }

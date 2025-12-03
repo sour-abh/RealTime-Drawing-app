@@ -10,6 +10,7 @@ import { Pen } from "lucide-react"
 import { BACKEND_HTTP_URL } from "@/config"
 import axios from 'axios'
 
+
 export default function SignupPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -24,7 +25,7 @@ export default function SignupPage() {
     // }
     setLoading(true)
     try{
-        const res=await axios.put(`${BACKEND_HTTP_URL}/signup`,{email:email,password:password,name:name})
+        const res=await axios.post(`${BACKEND_HTTP_URL}/signup`,{email:email,password:password,name:name})
         if(!res){
             return
         }

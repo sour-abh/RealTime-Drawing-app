@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 
+
 const userRouter:Router=express.Router()
 
 
@@ -25,6 +26,7 @@ function generateRandomString(length: number) {
 
 const authmiddleware=async(req:Request ,res:Response,next:NextFunction)=>{
     const header=req.headers.authorization ?? ''
+     console.log("AUTH HEADER:", req.headers.authorization);
     if ( !header){
        return  res.status(400).json({message:'no header found'})
     }
@@ -54,6 +56,7 @@ const authmiddleware=async(req:Request ,res:Response,next:NextFunction)=>{
         res.json({message:err})
 
     }
+ 
 
 }
 
@@ -82,6 +85,7 @@ userRouter.post('/signup', async function (req:Request,res:Response){
     if(createdUser){
         
         const token=jwt.sign({userId:createdUser.id},JWT_SECRET)
+        
         res.cookie("token", token, {
           httpOnly: true,
           secure: false, // set to true in production
@@ -120,8 +124,10 @@ userRouter.post('/login', async function (req:Request,res:Response){
                 res.cookie("token", token, {
                   httpOnly: true,
                   secure: false, // set to true in production
-                  sameSite: "lax",
+                  
+                  domain:'localhost',
                   maxAge: 1000 * 60 * 60 * 24 * 7,
+                
                 });
         res
           .status(200)
@@ -165,7 +171,7 @@ userRouter.get(
           roomId: room,
         }
         ,orderBy:{id:'desc'},
-        take:50
+        take:1000
 
       });
       if (!chats) {

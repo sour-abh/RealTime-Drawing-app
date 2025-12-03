@@ -1,6 +1,5 @@
 import { Tool } from "@/components/Canvas";
 import { getExistingShapes } from "./http";
-import { ReactEventHandler } from "react";
 
 
 type Shape = {
@@ -62,7 +61,7 @@ export class Game{
     initHandlers(){
         this.socket.onmessage=(event)=>{
             const message=JSON.parse(event.data)
-            if(message.type=="chat"){
+            if(message.type==="chat"){
                 const parsedShape=JSON.parse(message.message)
                 this.existingShapes.push(parsedShape.shape)
                 this.clearCanvas()
@@ -72,7 +71,7 @@ export class Game{
 
     clearCanvas(){
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height)
-        this.ctx.fillStyle="rgba(67,60,60)"
+        this.ctx.fillStyle="rgba(51,50,50)"
         this.ctx.fillRect(0,0,this.canvas.width ,this.canvas.height
         )
         this.existingShapes.map((shape)=>{
@@ -83,7 +82,7 @@ export class Game{
                 console.log(shape)
                 this.ctx.beginPath()
                  this.ctx.strokeStyle="rgba(67,145,107)";
-                this.ctx.arc(shape.centerX,shape.centerY,shape.radius,0,Math.PI*2)
+                this.ctx.arc(shape.centerX,shape.centerY,Math.abs(shape.radius),0,Math.PI*2)
                 this.ctx.stroke()
                 this.ctx.closePath()
             }
@@ -147,7 +146,7 @@ export class Game{
                 const centerY=this.startY+radius
                 this.ctx.beginPath()
                 this.ctx.strokeStyle='rgba(67,145,107)'
-                this.ctx.arc(centerX,centerY,radius,0,Math.PI*2);
+                this.ctx.arc(centerX,centerY,Math.abs(radius),0,Math.PI*2);
                 this.ctx.stroke()
                 this.ctx.closePath()
             }

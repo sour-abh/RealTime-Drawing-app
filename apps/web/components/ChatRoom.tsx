@@ -5,14 +5,15 @@ import { cookies } from "next/headers";
 
 
 async function getChats({roomId}:{roomId:string}){
-    const token=(await cookies()).get("token")?.value
+    const token=(await cookies()).get("token")?.value || ''
+    console.log(token)
     try{
        
         const response = await axios.get(
           `${BACKEND_HTTP_URL}/chats/${roomId}`,
           {
             headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5NDIwMzU4NS04MzE1LTRjMzItYWVjNy1kOTlkNzAzMTY5NTYiLCJpYXQiOjE3NjQyMzAzNzd9.koYm_ZSIuy_1fk-naBJM_Ec_2YP9B3vkBmbTP4xIOFo`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
